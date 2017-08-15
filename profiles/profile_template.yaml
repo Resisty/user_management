@@ -1,0 +1,20 @@
+---
+samba-group-sid: <enter samba group sid>
+primary-gid-number: <Users primary gid>
+# profile owner's username
+owner: your.mom
+
+# Groups that have the object class of posixgroup
+posix-group:
+  - cn=examplegroup1,ou=usergroups,ou=groups,dc=example,dc=com
+# Groups that have the object class of groupofuniquenames
+group-of-unique-names:
+  - cn=examplegroup2,ou=roles,ou=groups,dc=example,dc=com
+# Groups that have both posixgroup and groupofuniquenames
+samba-group-mapping:
+  - cn=Example Group 3,ou=windows,ou=accessgroups,ou=groups,dc=example,dc=com
+
+okta-aws-roles:
+  <account>: <role>
+# For example
+  sandbox: Administrator

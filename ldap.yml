@@ -1,0 +1,9 @@
+---
+user: ''
+password: ''
+basedn: dc=jivehosted,dc=com
+environment:
+  jcadev: ds-master1.jcadev.eng.jiveland.com
+  jcint: jcint-dsmaster1.phx1.jivehosted.com
+  phx: ds-master1.phx1.jivehosted.com
+  qa: '10.190.12.22'

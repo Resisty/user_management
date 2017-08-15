@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -xe
+
+declare -r current_dir=$(cd "$(dirname "$0")"; pwd)
+declare -r image_name="user_management"
+
+PREFIX=docker.example.com/${image_name}
+TAG="latest"
+
+build_image() {
+  docker build -t ${PREFIX}:${TAG} ${current_dir}
+}
+
+push_to_registry() {
+  docker push ${PREFIX}:${TAG}
+}
+
+cleanup() {
+  rm -rf ${current_dir}/*
+}
+
+build_image
+push_to_registry
+cleanup
+
+exit 0

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+export CFLAGS=-Qunused-arguments
+export CPPFLAGS=-Qunused-arguments
+
+curdir=$(dirname $0)
+cd $curdir/../../
+PS1=''
+VENV='/usr/bin/virtualenv-2.7'
+${VENV} --clear . && source bin/activate
+# shitty shim for Mac OS X El Capitan
+# SIP (https://developer.apple.com/library/mac/releasenotes/MacOSX/WhatsNewInOSX/Articles/MacOSX10_11.html#//apple_ref/doc/uid/TP40016227-DontLinkElementID_19)
+# prevents modifying things like /usr/include so we have to tell pip where to find sasl.h
+if [ $(command -v xcrun) ] 
+then
+	export CFLAGS="${CFLAGS} -I$(xcrun --show-sdk-path)/usr/include/sasl"
+fi
+pip install six
+pip install packaging
+pip install appdirs
+pip install --upgrade setuptools
+pip install --upgrade pip
+pip install -r requirements-dev.txt
+python tests.py

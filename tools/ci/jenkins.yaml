@@ -1,0 +1,80 @@
+# simple defaults
+- defaults:
+    name: user_management_image_build
+    project-type: freestyle
+    node: docker
+    logrotate:
+      daysToKeep: 30
+    wrappers:
+      - timeout:
+          timeout: 150
+          timeout-var: BUILD_TIMEOUT
+          type: absolute
+      - timestamps
+- scm:
+    name: precommit
+    scm:
+      - git:
+          url: ssh://git@gitrepo.example.com/user_management.git
+          credentials-id: aa954545-ff1d-4b63-9e67-50f5cde65fba
+          branches:
+            - '**/feature/*'
+            - '**/hotfix/*'
+- scm:
+    name: develop
+    scm:
+      - git:
+          url: ssh://git@gitrepo.example.com/user_management.git
+          credentials-id: aa954545-ff1d-4b63-9e67-50f5cde65fba
+          branches:
+            - 'develop'
+
+# notify stash
+- publisher:
+    name: stash-notifier
+    publishers:
+      - conditional-publisher:
+          - condition-kind: always
+            action:
+              - stash:
+                  url: https://gitrepo.example.com
+                  password: ''
+                  credentials-id: '9b02c718-b873-4d8c-a27b-801de5e4d0af'
+
+- job:
+    name: user_management_precommit
+    node: baremetal
+    defaults: user_management_image_build
+    concurrent: true
+    properties:
+      - throttle:
+          max-total: '0'
+          max-per-node: '1'
+    scm:
+      - precommit
+    triggers:
+      - pollscm:
+          cron: '@yearly'
+    builders:
+      - shell: /usr/bin/env bash tools/ci/precommit
+    publishers:
+      - stash-notifier
+
+- job:
+    name: user_management_image_build
+    node: docker
+    defaults: user_management_image_build
+    scm:
+      - develop
+    triggers:
+      - pollscm:
+          cron: '@yearly'
+    properties:
+      - delivery-pipeline:
+          stage: 'prod'
+          task: 'deploy'
+    builders:
+      - shell: |
+          /usr/bin/env bash build_docker
+    publishers:
+      - stash-notifier
